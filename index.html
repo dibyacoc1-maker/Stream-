@@ -23,333 +23,107 @@
             --transition: 0.2s ease;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        html, body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            overflow-x: hidden;
-            min-height: 100vh;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        html, body { background-color: var(--bg-color); color: var(--text-main); font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; overflow-x: hidden; min-height: 100vh; }
         body::-webkit-scrollbar { width: 8px; }
         body::-webkit-scrollbar-track { background: var(--bg-color); }
         body::-webkit-scrollbar-thumb { background: var(--surface-hover); border-radius: 4px; }
 
-        /* Focus Visible for Remote/Keyboard */
         *:focus { outline: none; }
-        .focusable:focus-visible {
-            box-shadow: var(--focus-ring);
-            border-color: var(--primary-color);
-            transform: scale(1.05);
-            z-index: 10;
-        }
+        .focusable:focus-visible { box-shadow: var(--focus-ring); border-color: var(--primary-color); transform: scale(1.05); z-index: 10; }
 
         /* Header */
         header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 70px;
+            position: fixed; top: 0; left: 0; right: 0; height: 70px;
             background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 100%);
-            display: flex;
-            align-items: center;
-            padding: 0 4vw;
-            z-index: 100;
-            transition: background-color 0.3s;
+            display: flex; align-items: center; padding: 0 4vw; z-index: 100; transition: background-color 0.3s;
         }
         header.scrolled { background-color: var(--bg-color); border-bottom: 1px solid var(--border-color); }
-        
-        .logo {
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: var(--primary-color);
-            margin-right: 4vw;
-            letter-spacing: -1px;
-            cursor: pointer;
-        }
-
-        nav {
-            display: flex;
-            gap: 20px;
-            flex: 1;
-        }
-
-        .nav-item {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 1rem;
-            font-weight: 500;
-            padding: 8px 12px;
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-        }
+        .logo { font-size: 1.8rem; font-weight: 800; color: var(--primary-color); margin-right: 4vw; letter-spacing: -1px; cursor: pointer; }
+        nav { display: flex; gap: 20px; flex: 1; }
+        .nav-item { color: var(--text-secondary); text-decoration: none; font-size: 1rem; font-weight: 500; padding: 8px 12px; border-radius: var(--radius-sm); cursor: pointer; }
         .nav-item.active, .nav-item:hover { color: var(--text-main); }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .search-container {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-        .search-input {
-            background: var(--surface-color);
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            padding: 8px 16px;
-            color: var(--text-main);
-            font-size: 0.9rem;
-            width: 200px;
-            transition: width 0.3s;
-        }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .search-container { position: relative; display: flex; align-items: center; }
+        .search-input { background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 20px; padding: 8px 16px; color: var(--text-main); font-size: 0.9rem; width: 200px; transition: width 0.3s; }
         .search-input:focus { width: 300px; border-color: var(--primary-color); }
 
-        /* Main Content */
-        main {
-            padding: 90px 4vw 40px;
-        }
+        /* Mobile Menu */
+        .menu-toggle { display: none; background: none; border: none; color: #fff; font-size: 1.8rem; cursor: pointer; margin-right: 20px; }
+        .mobile-nav { position: fixed; top: 0; left: 0; width: 250px; height: 100vh; background: var(--surface-color); padding: 70px 20px 20px; transform: translateX(-100%); transition: transform 0.3s; z-index: 99; border-right: 1px solid var(--border-color); }
+        .mobile-nav.active { transform: translateX(0); }
+        .mobile-nav .nav-item { display: block; margin-bottom: 10px; font-size: 1.2rem; }
+        .overlay-bg { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 98; display: none; }
+        .overlay-bg.active { display: block; }
 
+        /* Main Content */
+        main { padding: 90px 4vw 40px; }
         .section { margin-bottom: 40px; }
-        .section-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+        .section-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
 
         /* Channel Grid */
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 20px;
-        }
-
-        .channel-card {
-            background: var(--surface-color);
-            border-radius: var(--radius-md);
-            overflow: hidden;
-            cursor: pointer;
-            transition: transform 0.2s, background 0.2s;
-            border: 2px solid transparent;
-            position: relative;
-        }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+        .channel-card { background: var(--surface-color); border-radius: var(--radius-md); overflow: hidden; cursor: pointer; transition: transform 0.2s, background 0.2s; border: 2px solid transparent; position: relative; }
         .channel-card:hover { background: var(--surface-hover); }
-        
-        .channel-logo {
-            width: 100%;
-            height: 120px;
-            object-fit: contain;
-            background: #000;
-        }
-        .channel-info {
-            padding: 12px;
-        }
-        .channel-name {
-            font-weight: 600;
-            font-size: 1rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .channel-meta {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            margin-top: 4px;
-            display: flex;
-            justify-content: space-between;
-        }
-        .fav-badge {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            background: rgba(0,0,0,0.7);
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            color: var(--primary-color);
-        }
+        .channel-logo { width: 100%; height: 120px; object-fit: contain; background: #000; }
+        .channel-info { padding: 12px; }
+        .channel-name { font-weight: 600; font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .channel-meta { font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px; display: flex; justify-content: space-between; }
+        .fav-badge { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.7); padding: 4px 8px; border-radius: 12px; font-size: 0.8rem; color: var(--primary-color); }
 
         /* Skeleton Loader */
-        .skeleton {
-            background: linear-gradient(90deg, var(--surface-color) 25%, var(--surface-hover) 50%, var(--surface-color) 75%);
-            background-size: 200% 100%;
-            animation: loading 1.5s infinite;
-        }
+        .skeleton { background: linear-gradient(90deg, var(--surface-color) 25%, var(--surface-hover) 50%, var(--surface-color) 75%); background-size: 200% 100%; animation: loading 1.5s infinite; }
         @keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
         .skeleton .channel-logo { height: 120px; }
         .skeleton .skeleton-line { height: 12px; margin: 10px 12px; border-radius: 4px; }
 
         /* Player Overlay */
-        #player-overlay {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: #000;
-            z-index: 1000;
-            display: none;
-            flex-direction: column;
-        }
+        #player-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #000; z-index: 1000; display: none; flex-direction: column; }
         #player-overlay.active { display: flex; }
         
-        .player-header {
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            padding: 20px;
-            background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 10;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        #player-overlay:hover .player-header, #player-overlay.active-controls .player-header { opacity: 1; }
-        
+        .player-header { position: absolute; top: 0; left: 0; right: 0; padding: 20px; background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%); display: flex; justify-content: space-between; align-items: center; z-index: 10; opacity: 0; transition: opacity 0.3s; }
+        #player-overlay.active-controls .player-header { opacity: 1; }
         .player-title { font-size: 1.5rem; font-weight: 600; }
-        .player-close {
-            background: rgba(255,255,255,0.1);
-            border: none;
-            color: #fff;
-            width: 40px; height: 40px;
-            border-radius: 50%;
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
+        .player-close { background: rgba(255,255,255,0.1); border: none; color: #fff; width: 40px; height: 40px; border-radius: 50%; font-size: 1.5rem; cursor: pointer; }
         
-        #video-container {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-        video, #youtube-player {
-            width: 100%; height: 100%;
-        }
+        #video-container { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; }
+        video, #youtube-player { width: 100%; height: 100%; }
         #youtube-player { display: none; }
 
-        /* Player Controls */
-        .player-controls {
-            position: absolute;
-            bottom: 0; left: 0; right: 0;
-            padding: 20px;
-            background: linear-gradient(0deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        #player-overlay:hover .player-controls, #player-overlay.active-controls .player-controls { opacity: 1; }
+        .player-controls { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px; background: linear-gradient(0deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%); display: flex; align-items: center; gap: 20px; opacity: 0; transition: opacity 0.3s; }
+        #player-overlay.active-controls .player-controls { opacity: 1; }
         
-        .control-btn {
-            background: transparent;
-            border: none;
-            color: #fff;
-            font-size: 1.2rem;
-            cursor: pointer;
-            padding: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            transition: background 0.2s;
-        }
+        .control-btn { background: transparent; border: none; color: #fff; font-size: 1.2rem; cursor: pointer; padding: 10px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: background 0.2s; }
         .control-btn:hover { background: rgba(255,255,255,0.1); }
-        
-        .volume-slider {
-            -webkit-appearance: none;
-            width: 100px;
-            height: 4px;
-            background: rgba(255,255,255,0.3);
-            border-radius: 2px;
-        }
-        .volume-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 12px; height: 12px;
-            background: #fff;
-            border-radius: 50%;
-        }
+        .volume-slider { -webkit-appearance: none; width: 100px; height: 4px; background: rgba(255,255,255,0.3); border-radius: 2px; }
+        .volume-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; background: #fff; border-radius: 50%; }
+        .server-select { background: rgba(0,0,0,0.6); border: 1px solid #fff; color: #fff; padding: 8px 16px; border-radius: var(--radius-sm); margin-left: auto; }
 
-        .server-select {
-            background: rgba(0,0,0,0.6);
-            border: 1px solid #fff;
-            color: #fff;
-            padding: 8px 16px;
-            border-radius: var(--radius-sm);
-            margin-left: auto;
-        }
-
-        /* Loading Spinner */
-        .spinner {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 50px; height: 50px;
-            border: 5px solid rgba(255,255,255,0.3);
-            border-top-color: #fff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            display: none;
-        }
+        .spinner { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 50px; height: 50px; border: 5px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 1s linear infinite; display: none; }
         @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
 
-        /* Error Screen */
-        .player-error {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: #000;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            text-align: center;
-            z-index: 5;
-        }
+        .player-error { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: #000; display: none; flex-direction: column; align-items: center; justify-content: center; color: #fff; text-align: center; z-index: 5; }
         .player-error h3 { font-size: 1.5rem; margin-bottom: 10px; color: var(--primary-color); }
-        .player-error button {
-            margin-top: 20px;
-            padding: 10px 20px;
-            background: var(--primary-color);
-            color: #fff;
-            border: none;
-            border-radius: var(--radius-sm);
-            font-size: 1rem;
-            cursor: pointer;
-        }
+        .player-error button { margin-top: 20px; padding: 10px 20px; background: var(--primary-color); color: #fff; border: none; border-radius: var(--radius-sm); font-size: 1rem; cursor: pointer; }
 
         /* Responsive */
         @media (max-width: 768px) {
             nav { display: none; }
-            .search-input { width: 150px; }
-            .search-input:focus { width: 200px; }
+            .menu-toggle { display: block; }
+            .search-input { width: 120px; }
+            .search-input:focus { width: 180px; }
             .grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
             .channel-logo { height: 90px; }
+            .player-controls { flex-wrap: wrap; gap: 10px; justify-content: center; }
+            .volume-slider { width: 80px; }
+            .server-select { margin-left: 0; }
         }
-        
-        /* TV Screen Optimization */
-        @media (min-width: 1920px) {
-            main { max-width: 1900px; margin: 0 auto; }
-            .grid { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); }
-        }
+        @media (min-width: 1920px) { main { max-width: 1900px; margin: 0 auto; } .grid { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); } }
     </style>
 </head>
 <body>
     <header id="header">
+        <button class="menu-toggle focusable" id="menu-toggle" tabindex="0">&#9776;</button>
         <div class="logo focusable" tabindex="0" data-action="home">StreamLive</div>
         <nav>
             <a class="nav-item focusable" tabindex="0" data-action="home">Home</a>
@@ -363,30 +137,30 @@
         </div>
     </header>
 
-    <main id="main-content">
-        <!-- Dynamic Content Injected Here -->
-    </main>
+    <div class="mobile-nav" id="mobile-nav">
+        <a class="nav-item focusable" tabindex="0" data-action="home">Home</a>
+        <a class="nav-item focusable" tabindex="0" data-action="favorites">Favorites</a>
+        <a class="nav-item focusable" tabindex="0" data-action="history">History</a>
+    </div>
+    <div class="overlay-bg" id="overlay-bg"></div>
 
-    <!-- Player Overlay -->
+    <main id="main-content"></main>
+
     <div id="player-overlay">
         <div class="player-header">
             <div class="player-title" id="player-title">Live Channel</div>
             <button class="player-close focusable" id="close-player" tabindex="0">&times;</button>
         </div>
-        
         <div id="video-container">
             <video id="video-player" playsinline></video>
             <div id="youtube-player"></div>
-            
             <div class="spinner" id="player-spinner"></div>
-            
             <div class="player-error" id="player-error">
                 <h3>Stream Error</h3>
                 <p id="error-message">Failed to load stream. Please try another server.</p>
                 <button class="focusable" id="retry-btn" tabindex="0">Retry</button>
             </div>
         </div>
-
         <div class="player-controls">
             <button class="control-btn focusable" id="play-pause-btn" tabindex="0">&#10073;&#10073;</button>
             <button class="control-btn focusable" id="mute-btn" tabindex="0">&#128264;</button>
@@ -399,11 +173,8 @@
         </div>
     </div>
 
-    <!-- External Libraries for Streaming -->
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.12/shaka-player.compiled.js"></script>
-    
-    <!-- App Modules -->
     <script type="module" src="app.js"></script>
 </body>
 </html>
