@@ -32,11 +32,11 @@ async function init() {
     showSkeletons();
     try {
         const res = await fetch('/data/channels.json');
-        if (!res.ok) throw new Error('Network response was not ok');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         allChannels = await res.json();
         renderHome();
     } catch (e) {
-        document.getElementById('main-content').innerHTML = `<div class="section"><h2 class="section-title">Failed to load channels.</h2><p style="color:var(--text-secondary)">Make sure you are running this via a server (like Vercel).</p></div>`;
+        document.getElementById('main-content').innerHTML = `<div class="section"><h2 class="section-title">Failed to load channels.</h2><p style="color:var(--text-secondary)">Error: ${e.message}. Make sure the 'data' folder is uploaded correctly (lowercase).</p></div>`;
     }
 }
 
