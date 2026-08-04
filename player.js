@@ -89,7 +89,7 @@ function playServer(index) {
     try {
         if (server.type === 'm3u8') {
             playHLS(server);
-        } else if (server.type === 'mpd') {
+        } else if (server.type === 'mpd' || server.type === 'dash') { // Added 'dash' alias
             playDASH(server);
         } else if (server.type === 'youtube') {
             playYouTube(server);
@@ -131,7 +131,7 @@ function playDASH(server) {
             httpRequestHeaders: server.headers || {}
         };
     } else if (server.kid && server.key) {
-        // ClearKey support
+        // ClearKey support for DASH
         protData['org.w3.clearkey'] = {
             clearkeys: {
                 [server.kid]: server.key
@@ -144,11 +144,13 @@ function playDASH(server) {
     dashPlayer.setProtectionData(protData);
     dashPlayer.initialize(videoPlayer, url, true);
     
-    dashPlayer.on(dashjs.MediaPlayer.events('STREAM_INITIALIZED'), () => {
+    // FIX: Use string event names instead of dashjs.MediaPlayer.events('...')
+    dashPlayer.on('streamInitialized', () => {
         hideSpinner();
     });
-    dashPlayer.on(dashjs.MediaPlayer.events('ERROR'), (e) => {
-        handleStreamError('DASH Error: ' + e.error.message);
+    
+    dashPlayer.on('error', (e) => {
+        handleStreamError('DASH Error: ' + (e.error ? e.error.message : 'Unknown error'));
     });
 }
 
