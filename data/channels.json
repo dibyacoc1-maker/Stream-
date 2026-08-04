@@ -1,20 +1,29 @@
 [
   {
-    "id": "zbangla",
+    "id": "zeebangla",
     "name": "Zee Bangla",
-    "logo": "https://i.postimg.cc/wj9Q6Mj6/zee-bangla.jpg",
-    "group": "Bangali",
+    "logo": "https://i.postimg.cc/7hrsjZ1v/doraemon.jpg",
+    "group": "Entertainment",
     "country": "India",
-    "language": "Bangla",
+    "language": "Bengali",
     "type": "mpd"
   },
   {
-    "id": "",
-    "name": "",
-    "logo": "",
-    "group": "",
-    "country": "",
-    "language": "",
-    "type": ""
+    "id": "doraemon",
+    "name": "24/7 Doraemon",
+    "logo": "https://i.postimg.cc/7hrsjZ1v/doraemon.jpg",
+    "group": "Kids",
+    "country": "India",
+    "language": "Hindi",
+    "type": "m3u8"
+  },
+  {
+    "id": "motupatlu",
+    "name": "24/7 Motu Patlu",
+    "logo": "https://i.postimg.cc/sgxQd9gz/motu-patlu.jpg",
+    "group": "Kids",
+    "country": "India",
+    "language": "Hindi",
+    "type": "m3u8"
   }
 ]
