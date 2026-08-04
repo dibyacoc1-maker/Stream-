@@ -1,140 +1,40 @@
 {
-  "bbcone": {
-    "id": "bbcone",
+  "zeebangla": {
+    "id": "zeebangla",
     "servers": [
       {
-        "name": "Primary CDN",
-        "priority": 1,
-        "type": "m3u8",
-        "url": "https://tplay.live/out/music/world-music.index.m3u8",
-        "status": "active",
-        "notes": "Main live feed"
-      },
-      {
-        "name": "Backup CDN",
-        "priority": 2,
-        "type": "m3u8",
-        "url": "https://test-streams.mux.dev/test_001/stream.m3u8",
-        "backup": true,
-        "status": "active"
-      }
-    ]
-  },
-  "redbulltv": {
-    "id": "redbulltv",
-    "servers": [
-      {
-        "name": "Primary",
-        "priority": 1,
-        "type": "m3u8",
-        "url": "https://rbmn-live.akamaized.net/hls/live/590964/BoRB-AT/master.m3u8",
-        "status": "active"
-      }
-    ]
-  },
-  "dwnews": {
-    "id": "dwnews",
-    "servers": [
-      {
-        "name": "Primary",
-        "priority": 1,
-        "type": "m3u8",
-        "url": "https://dwamdstream102.akamaized.net/hls/live/2015525/dwstream102/index.m3u8",
-        "status": "active"
-      }
-    ]
-  },
-  "bbbdash": {
-    "id": "bbbdash",
-    "servers": [
-      {
-        "name": "Primary DASH",
-        "priority": 1,
-        "type": "mpd",
-        "url": "https://dash.akamaized.net/akamai/bbb_30fps/bbb_30fps.mpd",
-        "status": "active"
-      }
-    ]
-  },
-  "axinomdrm": {
-    "id": "axinomdrm",
-    "servers": [
-      {
-        "name": "Widevine DRM Server",
-        "priority": 1,
-        "type": "mpd",
-        "url": "https://media.axtest.net/Assets/Videos/MultiFormat_Widevine/sintel_1080p_30fps.mpd",
-        "drm": "widevine",
-        "licenseUrl": "https://drm-widevine-licensing.axtest.com/AcquireLicense",
-        "headers": {
-          "X-AxDRM-Message": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ2ZXJzaW9uIjoxLCJjb21fa2V5X2lkIjoiYjMzNjRlYjUtNTFmNi00YWUzLThjOTgtYzFjYzVjY2Q3YzZjIiwibWVzc2FnZSI6eyJ0eXBlIjoiZW50aXRsZW1lbnRfbWVzc2FnZSIsInZlcnNpb24iOjIsImxpY2Vuc2UiOnsiYWxsb3dfYnVybmluZyI6dHJ1ZSwicGVybWl0X3N0b3JhZ2VfbWFuYWdlciI6dHJ1ZX19LCJleHAiOjE5NDQ5NjU4OTd9.u7oQlbJ9bqGq8WzK8Z5K5U5g5X7W8b2r5t3b2b1b2b2"
-        },
-        "status": "active",
-        "notes": "Requires Widevine DRM support"
-      }
-    ]
-  },
-  "zbangla": {
-    "id": "zbangla",
-    "servers": [
-      {
-        "name": "Dibya Server",
+        "name": "SD",
         "priority": 1,
         "type": "mpd",
         "url": "https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Zeebangla/default/manifest.mpd",
-        "drm": "zbangla",
+        "drm": "clearkey",
         "kid": "1df83e058b864da896c9288eef63b113",
         "key": "fc32f26239054b56aab48225305598fe",
         "status": "active"
       }
     ]
   },
-  "lofiyt": {
-    "id": "lofiyt",
+  "doraemon": {
+    "id": "doraemon",
     "servers": [
       {
-        "name": "YouTube Live",
+        "name": "Playlist",
         "priority": 1,
-        "type": "youtube",
-        "url": "https://www.youtube.com/watch?v=jfKfPfyJRdk",
+        "type": "m3u8",
+        "url": "https://tplay.live/playlist/kids/doraemon/index.m3u8",
         "status": "active"
       }
     ]
   },
-  "nasatv": {
-    "id": "nasatv",
+  "motupatlu": {
+    "id": "motupatlu",
     "servers": [
       {
-        "name": "Primary",
+        "name": "Playlist",
         "priority": 1,
         "type": "m3u8",
-        "url": "https://ntv1.akamaized.net/hls/live/2014075/NASA-NTV1-HLS/master.m3u8",
+        "url": "https://tplay.live/playlist/kids/motu-patlu/index.m3u8",
         "status": "active"
-      }
-    ]
-  },
-  "aljazeera": {
-    "id": "aljazeera",
-    "servers": [
-      {
-        "name": "Primary",
-        "priority": 1,
-        "type": "m3u8",
-        "url": "https://live-hls-web-aje.getaj.net/AJE/01.m3u8",
-        "status": "active"
-      }
-    ]
-  },
-  "cnnnews": {
-    "id": "cnnnews",
-    "servers": [
-      {
-        "name": "Primary (Geo-blocked)",
-        "priority": 1,
-        "type": "m3u8",
-        "url": "https://turnerlive.warnermediacdn.com/hls/live/586499/cnngo/cnn_slate/VIDEO_0_3564000.m3u8",
-        "status": "active",
-        "notes": "May require US IP"
       }
     ]
   }
