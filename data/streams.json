@@ -5,11 +5,12 @@
       {
         "name": "SD",
         "priority": 1,
-        "type": "mpd",
+        "type": "dash",
         "url": "https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Zeebangla/default/manifest.mpd",
-        "drm": "clearkey",
-        "kid": "1df83e058b864da896c9288eef63b113",
-        "key": "fc32f26239054b56aab48225305598fe",
+        "drm": {
+          "kid": "1df83e058b864da896c9288eef63b113",
+          "key": "fc32f26239054b56aab48225305598fe"
+        },
         "status": "active"
       }
     ]
