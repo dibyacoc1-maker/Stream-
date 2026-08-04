@@ -2,12 +2,12 @@ import * as storage from './storage.js';
 
 let videoPlayer, youtubePlayer, currentChannels, currentChannel, currentServers, currentServerIndex;
 let hls = null, shakaPlayer = null, ytPlayer = null;
+let hideControlsTimeout;
 
 export function initPlayer() {
     videoPlayer = document.getElementById('video-player');
     youtubePlayer = document.getElementById('youtube-player');
     
-    // Controls
     document.getElementById('close-player').addEventListener('click', closePlayer);
     document.getElementById('play-pause-btn').addEventListener('click', togglePlay);
     document.getElementById('mute-btn').addEventListener('click', toggleMute);
@@ -20,12 +20,24 @@ export function initPlayer() {
     document.getElementById('prev-channel-btn').addEventListener('click', () => playPrevChannel());
     document.getElementById('next-channel-btn').addEventListener('click', () => playNextChannel());
     document.getElementById('retry-btn').addEventListener('click', () => playServer(currentServerIndex));
-    document.getElementById('server-select').addEventListener('change', (e) => {
-        playServer(parseInt(e.target.value));
-    });
+    document.getElementById('server-select').addEventListener('change', (e) => playServer(parseInt(e.target.value)));
 
-    // Keyboard shortcuts when player is open
+    // Auto-hide controls logic
+    const overlay = document.getElementById('player-overlay');
+    overlay.addEventListener('mousemove', showControls);
+    overlay.addEventListener('click', showControls);
+    overlay.addEventListener('touchstart', showControls);
+    
     document.addEventListener('keydown', handlePlayerKeys);
+}
+
+function showControls() {
+    const overlay = document.getElementById('player-overlay');
+    overlay.classList.add('active-controls');
+    clearTimeout(hideControlsTimeout);
+    hideControlsTimeout = setTimeout(() => {
+        overlay.classList.remove('active-controls');
+    }, 4000); // Hide after 4 seconds
 }
 
 export async function loadChannelIntoPlayer(channelData, channelsList) {
@@ -34,7 +46,6 @@ export async function loadChannelIntoPlayer(channelData, channelsList) {
     
     document.getElementById('player-overlay').classList.add('active');
     document.getElementById('player-title').innerText = channelData.name;
-    
     storage.addToHistory(channelData.id);
     
     showSpinner();
@@ -47,19 +58,17 @@ export async function loadChannelIntoPlayer(channelData, channelsList) {
         if (!res.ok) throw new Error('API Error');
         const streamData = await res.json();
         
-        if (!streamData.servers || streamData.servers.length === 0) {
-            throw new Error('No servers available');
-        }
+        if (!streamData.servers || streamData.servers.length === 0) throw new Error('No servers available');
 
         currentServers = streamData.servers.sort((a, b) => (a.priority || 99) - (b.priority || 99));
         populateServerDropdown(currentServers);
         
-        // Load last used server or priority 1
         const lastServerName = storage.getLastServer(channelData.id);
         let startIdx = currentServers.findIndex(s => s.name === lastServerName);
         if (startIdx === -1) startIdx = 0;
         
         playServer(startIdx);
+        showControls(); // Start auto-hide timer
     } catch (e) {
         showError("Failed to fetch stream data. " + e.message);
     }
@@ -87,15 +96,10 @@ function playServer(index) {
     document.getElementById('player-error').style.display = 'none';
 
     try {
-        if (server.type === 'm3u8') {
-            playHLS(server);
-        } else if (server.type === 'mpd' || server.type === 'dash') {
-            playDASH(server);
-        } else if (server.type === 'youtube') {
-            playYouTube(server);
-        } else {
-            throw new Error('Unsupported stream type');
-        }
+        if (server.type === 'm3u8') playHLS(server);
+        else if (server.type === 'mpd' || server.type === 'dash') playDASH(server);
+        else if (server.type === 'youtube') playYouTube(server);
+        else throw new Error('Unsupported stream type');
     } catch (e) {
         handleStreamError(e.message);
     }
@@ -106,90 +110,51 @@ function playHLS(server) {
         hls = new Hls({ maxBufferLength: 30, backBufferLength: 30, enableWorker: true, lowLatencyMode: true });
         hls.loadSource(server.url);
         hls.attachMedia(videoPlayer);
-        hls.on(Hls.Events.MANIFEST_PARSED, () => {
-            videoPlayer.play();
-            hideSpinner();
-        });
+        hls.on(Hls.Events.MANIFEST_PARSED, () => { videoPlayer.play(); hideSpinner(); });
         hls.on(Hls.Events.ERROR, (event, data) => {
             if (data.fatal) {
-                switch (data.type) {
-                    case Hls.ErrorTypes.NETWORK_ERROR:
-                        handleStreamError('HLS Network Error: ' + data.details);
-                        break;
-                    case Hls.ErrorTypes.MEDIA_ERROR:
-                        console.warn('HLS Media Error, trying to recover...');
-                        hls.recoverMediaError();
-                        break;
-                    default:
-                        handleStreamError('HLS Fatal Error: ' + data.details);
-                        break;
-                }
+                if (data.type === Hls.ErrorTypes.NETWORK_ERROR) handleStreamError('HLS Network Error');
+                else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) hls.recoverMediaError();
+                else handleStreamError('HLS Fatal Error');
             }
         });
     } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
         videoPlayer.src = server.url;
-        videoPlayer.addEventListener('loadedmetadata', () => { 
-            videoPlayer.play(); 
-            hideSpinner(); 
-        });
-    } else {
-        handleStreamError('HLS not supported');
-    }
+        videoPlayer.addEventListener('loadedmetadata', () => { videoPlayer.play(); hideSpinner(); });
+    } else { handleStreamError('HLS not supported'); }
 }
 
 function playDASH(server) {
-    if (!shaka.Player.isBrowserSupported()) {
-        handleStreamError('Shaka Player not supported in this browser');
-        return;
-    }
-
-    // Initialize Shaka Player if it doesn't exist
+    if (!shaka.Player.isBrowserSupported()) { handleStreamError('Shaka Player not supported'); return; }
     if (!shakaPlayer) {
         shakaPlayer = new shaka.Player();
         shakaPlayer.attach(videoPlayer);
-        shakaPlayer.configure({ 
-            streaming: { bufferingGoal: 30, rebufferingGoal: 15, bufferBehind: 30 }
-        });
-        shakaPlayer.addEventListener('error', (e) => {
-            handleStreamError('DASH Error: ' + (e.detail.message || 'Unknown error'));
-        });
+        shakaPlayer.configure({ streaming: { bufferingGoal: 30, rebufferingGoal: 15, bufferBehind: 30 } });
+        shakaPlayer.addEventListener('error', (e) => handleStreamError('DASH Error: ' + (e.detail.message || 'Unknown')));
     }
 
-    // Configure DRM (ClearKey or Widevine)
     const config = { drm: {} };
     if (server.drm) {
-        if (server.drm.kid && server.drm.key) {
-            // ClearKey support
-            config.drm.clearKeys = { [server.drm.kid]: server.drm.key };
-        } else if (server.drm.type === 'widevine' && server.licenseUrl) {
-            config.drm.servers = { 'com.widevine.alpha': server.licenseUrl };
-        }
+        if (server.drm.kid && server.drm.key) config.drm.clearKeys = { [server.drm.kid]: server.drm.key };
+        else if (server.drm.type === 'widevine' && server.licenseUrl) config.drm.servers = { 'com.widevine.alpha': server.licenseUrl };
     }
     shakaPlayer.configure(config);
 
-    shakaPlayer.load(server.url).then(() => {
-        videoPlayer.play();
-        hideSpinner();
-    }).catch((e) => {
-        handleStreamError('DASH Load Error: ' + (e.message || 'Failed to load'));
-    });
+    shakaPlayer.load(server.url).then(() => { videoPlayer.play(); hideSpinner(); })
+    .catch((e) => handleStreamError('DASH Load Error: ' + (e.message || 'Failed')));
 }
 
 function playYouTube(server) {
     let videoId = server.url.split('v=')[1] || server.url.split('/').pop();
     if (!videoId) return handleStreamError('Invalid YouTube URL');
-
     videoPlayer.style.display = 'none';
     youtubePlayer.style.display = 'block';
-    
     if (!window.YT) {
         const tag = document.createElement('script');
         tag.src = "https://www.youtube.com/iframe_api";
         document.body.appendChild(tag);
         window.onYouTubeIframeAPIReady = () => initYTPlayer(videoId);
-    } else {
-        initYTPlayer(videoId);
-    }
+    } else { initYTPlayer(videoId); }
 }
 
 function initYTPlayer(videoId) {
@@ -205,13 +170,8 @@ function initYTPlayer(videoId) {
 
 function handleStreamError(message) {
     console.error(message);
-    // Try next server automatically
-    if (currentServerIndex < currentServers.length - 1) {
-        console.log("Trying next server...");
-        playServer(currentServerIndex + 1);
-    } else {
-        showError(message || "Stream failed to load.");
-    }
+    if (currentServerIndex < currentServers.length - 1) playServer(currentServerIndex + 1);
+    else showError(message || "Stream failed to load.");
 }
 
 function showError(msg) {
@@ -219,31 +179,24 @@ function showError(msg) {
     document.getElementById('error-message').innerText = msg;
     document.getElementById('player-error').style.display = 'flex';
 }
-
 function showSpinner() { document.getElementById('player-spinner').style.display = 'block'; }
 function hideSpinner() { document.getElementById('player-spinner').style.display = 'none'; }
 
 function destroyPlayers() {
     if (hls) { hls.destroy(); hls = null; }
-    if (shakaPlayer) { 
-        shakaPlayer.unload(); 
-        shakaPlayer.destroy(); 
-        shakaPlayer = null; 
-    }
+    if (shakaPlayer) { shakaPlayer.unload(); shakaPlayer.destroy(); shakaPlayer = null; }
     if (ytPlayer) { try { ytPlayer.destroy(); } catch(e){} ytPlayer = null; }
     videoPlayer.src = '';
 }
 
 export function playNextChannel() {
     const idx = currentChannels.findIndex(c => c.id === currentChannel.id);
-    const next = currentChannels[(idx + 1) % currentChannels.length];
-    loadChannelIntoPlayer(next, currentChannels);
+    loadChannelIntoPlayer(currentChannels[(idx + 1) % currentChannels.length], currentChannels);
 }
 
 export function playPrevChannel() {
     const idx = currentChannels.findIndex(c => c.id === currentChannel.id);
-    const prev = currentChannels[(idx - 1 + currentChannels.length) % currentChannels.length];
-    loadChannelIntoPlayer(prev, currentChannels);
+    loadChannelIntoPlayer(currentChannels[(idx - 1 + currentChannels.length) % currentChannels.length], currentChannels);
 }
 
 function closePlayer() {
@@ -251,40 +204,45 @@ function closePlayer() {
     destroyPlayers();
 }
 
-function togglePlay() {
-    if (videoPlayer.paused) videoPlayer.play(); else videoPlayer.pause();
-}
-
-function toggleMute() {
-    videoPlayer.muted = !videoPlayer.muted;
-}
-
+function togglePlay() { if (videoPlayer.paused) videoPlayer.play(); else videoPlayer.pause(); }
+function toggleMute() { videoPlayer.muted = !videoPlayer.muted; }
 function toggleFullscreen() {
-    if (!document.fullscreenElement) {
-        document.getElementById('player-overlay').requestFullscreen();
-    } else {
-        document.exitFullscreen();
-    }
+    if (!document.fullscreenElement) document.getElementById('player-overlay').requestFullscreen();
+    else document.exitFullscreen();
 }
-
 async function togglePiP() {
-    if (document.pictureInPictureElement) {
-        await document.exitPictureInPicture();
-    } else {
-        await videoPlayer.requestPictureInPicture();
-    }
+    if (document.pictureInPictureElement) await document.exitPictureInPicture();
+    else if (document.pictureInPictureEnabled) await videoPlayer.requestPictureInPicture().catch(()=>{});
 }
 
 function handlePlayerKeys(e) {
     const overlay = document.getElementById('player-overlay');
     if (!overlay.classList.contains('active')) return;
 
+    // Re-show controls on any key press
+    showControls(); 
+
     switch(e.key) {
-        case 'Escape': closePlayer(); break;
+        case 'Escape':
+        case 'Back':
+            e.preventDefault();
+            // If mobile menu is open, close it. Otherwise close player.
+            if (document.getElementById('mobile-nav').classList.contains('active')) {
+                document.getElementById('mobile-nav').classList.remove('active');
+                document.getElementById('overlay-bg').classList.remove('active');
+            } else {
+                closePlayer();
+            }
+            break;
         case 'ArrowRight': playNextChannel(); break;
         case 'ArrowLeft': playPrevChannel(); break;
-        case 'Enter': 
-            if (document.activeElement.classList.contains('focusable')) return;
-            togglePlay(); break;
+        // Enter/OK only triggers clicks on focused elements. No pause.
+        case 'Enter':
+        case 'OK':
+            if (document.activeElement.classList.contains('focusable')) {
+                e.preventDefault();
+                document.activeElement.click();
+            }
+            break;
     }
 }
