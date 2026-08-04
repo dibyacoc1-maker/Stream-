@@ -11,20 +11,32 @@ async function init() {
     initPlayer();
     initSearch();
     
+    // Mobile Menu Logic
+    const menuToggle = document.getElementById('menu-toggle');
+    const mobileNav = document.getElementById('mobile-nav');
+    const overlayBg = document.getElementById('overlay-bg');
+    
+    menuToggle.addEventListener('click', () => {
+        mobileNav.classList.add('active');
+        overlayBg.classList.add('active');
+    });
+    overlayBg.addEventListener('click', () => {
+        mobileNav.classList.remove('active');
+        overlayBg.classList.remove('active');
+    });
+
     window.addEventListener('scroll', () => {
         document.getElementById('header').classList.toggle('scrolled', window.scrollY > 50);
     });
 
     showSkeletons();
     try {
-        // Changed to absolute path
         const res = await fetch('/data/channels.json');
         if (!res.ok) throw new Error('Network response was not ok');
-        
         allChannels = await res.json();
         renderHome();
     } catch (e) {
-        document.getElementById('main-content').innerHTML = `<div class="section"><h2 class="section-title">Failed to load channels.</h2><p style="color:var(--text-secondary)">Make sure you are running this via a server (like Vercel) and not opening the file directly.</p></div>`;
+        document.getElementById('main-content').innerHTML = `<div class="section"><h2 class="section-title">Failed to load channels.</h2><p style="color:var(--text-secondary)">Make sure you are running this via a server (like Vercel).</p></div>`;
     }
 }
 
@@ -42,21 +54,19 @@ function renderHome() {
     const favs = storage.getFavorites();
     
     const featured = allChannels.slice(0, 5);
-    const trending = [...allChannels].sort(() => Math.random() - 0.5).slice(0, 10);
-    const newChannels = allChannels.slice(3, 8);
+    const trending = allChannels.filter(ch => ch.tr == 1); // Only channels with tr: 1
     
     let html = '';
     
     if (favs.length > 0) {
         html += renderSection('My Favorites', allChannels.filter(c => favs.includes(c.id)));
     }
-    
     html += renderSection('Featured', featured);
-    html += renderSection('Trending Now', trending);
-    html += renderSection('New Channels', newChannels);
+    if(trending.length > 0) html += renderSection('Trending Now', trending);
     
     main.innerHTML = html;
     attachCardListeners();
+    closeMobileMenu();
 }
 
 function renderFavorites() {
@@ -64,14 +74,13 @@ function renderFavorites() {
     const main = document.getElementById('main-content');
     const favs = storage.getFavorites();
     const favChannels = allChannels.filter(c => favs.includes(c.id));
-    
     if (favChannels.length === 0) {
         main.innerHTML = `<div class="section"><h2 class="section-title">No Favorites Yet</h2><p style="color:var(--text-secondary)">Add channels to favorites by clicking the heart icon.</p></div>`;
         return;
     }
-    
     main.innerHTML = renderSection('My Favorites', favChannels);
     attachCardListeners();
+    closeMobileMenu();
 }
 
 function renderHistory() {
@@ -79,14 +88,13 @@ function renderHistory() {
     const main = document.getElementById('main-content');
     const history = storage.getHistory();
     const historyChannels = history.map(id => allChannels.find(c => c.id === id)).filter(Boolean);
-    
     if (historyChannels.length === 0) {
         main.innerHTML = `<div class="section"><h2 class="section-title">No Watch History</h2></div>`;
         return;
     }
-    
     main.innerHTML = renderSection('Continue Watching', historyChannels);
     attachCardListeners();
+    closeMobileMenu();
 }
 
 export function renderSearchResults(results) {
@@ -131,7 +139,11 @@ function attachCardListeners() {
     });
 }
 
-// Navigation
+function closeMobileMenu() {
+    document.getElementById('mobile-nav').classList.remove('active');
+    document.getElementById('overlay-bg').classList.remove('active');
+}
+
 document.querySelectorAll('[data-action]').forEach(el => {
     el.addEventListener('click', () => {
         const action = el.getAttribute('data-action');
