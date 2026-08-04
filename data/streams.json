@@ -74,17 +74,17 @@
       }
     ]
   },
-  "clearkeydash": {
-    "id": "clearkeydash",
+  "zbangla": {
+    "id": "zbangla",
     "servers": [
       {
-        "name": "ClearKey Server",
+        "name": "Dibya Server",
         "priority": 1,
         "type": "mpd",
-        "url": "https://media.axtest.net/Assets/Videos/MultiFormat_ClearKey/sintel_1080p_30fps.mpd",
-        "drm": "clearkey",
-        "kid": "eb676abbcb345e96bbcf616630f1a3da",
-        "key": "100b6c20940f779a4589152b57d2dacb",
+        "url": "https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Zeebangla/default/manifest.mpd",
+        "drm": "zbangla",
+        "kid": "1df83e058b864da896c9288eef63b113",
+        "key": "fc32f26239054b56aab48225305598fe",
         "status": "active"
       }
     ]
