@@ -1,7 +1,7 @@
 import * as storage from './storage.js';
 
 let videoPlayer, youtubePlayer, currentChannels, currentChannel, currentServers, currentServerIndex;
-let hls = null, dashPlayer = null, ytPlayer = null;
+let hls = null, shakaPlayer = null, ytPlayer = null;
 
 export function initPlayer() {
     videoPlayer = document.getElementById('video-player');
@@ -89,7 +89,7 @@ function playServer(index) {
     try {
         if (server.type === 'm3u8') {
             playHLS(server);
-        } else if (server.type === 'mpd' || server.type === 'dash') { // Added 'dash' alias
+        } else if (server.type === 'mpd' || server.type === 'dash') {
             playDASH(server);
         } else if (server.type === 'youtube') {
             playYouTube(server);
@@ -103,7 +103,7 @@ function playServer(index) {
 
 function playHLS(server) {
     if (Hls.isSupported()) {
-        hls = new Hls();
+        hls = new Hls({ maxBufferLength: 30, backBufferLength: 30, enableWorker: true, lowLatencyMode: true });
         hls.loadSource(server.url);
         hls.attachMedia(videoPlayer);
         hls.on(Hls.Events.MANIFEST_PARSED, () => {
@@ -111,46 +111,67 @@ function playHLS(server) {
             hideSpinner();
         });
         hls.on(Hls.Events.ERROR, (event, data) => {
-            if (data.fatal) handleStreamError('HLS Error: ' + data.details);
+            if (data.fatal) {
+                switch (data.type) {
+                    case Hls.ErrorTypes.NETWORK_ERROR:
+                        handleStreamError('HLS Network Error: ' + data.details);
+                        break;
+                    case Hls.ErrorTypes.MEDIA_ERROR:
+                        console.warn('HLS Media Error, trying to recover...');
+                        hls.recoverMediaError();
+                        break;
+                    default:
+                        handleStreamError('HLS Fatal Error: ' + data.details);
+                        break;
+                }
+            }
         });
     } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
         videoPlayer.src = server.url;
-        videoPlayer.addEventListener('loadedmetadata', () => { videoPlayer.play(); hideSpinner(); });
+        videoPlayer.addEventListener('loadedmetadata', () => { 
+            videoPlayer.play(); 
+            hideSpinner(); 
+        });
     } else {
         handleStreamError('HLS not supported');
     }
 }
 
 function playDASH(server) {
-    const url = server.url;
-    const protData = {};
-    
-    if (server.drm === 'widevine' && server.licenseUrl) {
-        protData['com.widevine.alpha'] = {
-            serverURL: server.licenseUrl,
-            httpRequestHeaders: server.headers || {}
-        };
-    } else if (server.kid && server.key) {
-        // ClearKey support for DASH
-        protData['org.w3.clearkey'] = {
-            clearkeys: {
-                [server.kid]: server.key
-            }
-        };
+    if (!shaka.Player.isBrowserSupported()) {
+        handleStreamError('Shaka Player not supported in this browser');
+        return;
     }
 
-    dashPlayer = dashjs.MediaPlayer().create();
-    dashPlayer.updateSettings({ streaming: { buffer: { fastSwitchEnabled: true } } });
-    dashPlayer.setProtectionData(protData);
-    dashPlayer.initialize(videoPlayer, url, true);
-    
-    // FIX: Use string event names instead of dashjs.MediaPlayer.events('...')
-    dashPlayer.on('streamInitialized', () => {
+    // Initialize Shaka Player if it doesn't exist
+    if (!shakaPlayer) {
+        shakaPlayer = new shaka.Player();
+        shakaPlayer.attach(videoPlayer);
+        shakaPlayer.configure({ 
+            streaming: { bufferingGoal: 30, rebufferingGoal: 15, bufferBehind: 30 }
+        });
+        shakaPlayer.addEventListener('error', (e) => {
+            handleStreamError('DASH Error: ' + (e.detail.message || 'Unknown error'));
+        });
+    }
+
+    // Configure DRM (ClearKey or Widevine)
+    const config = { drm: {} };
+    if (server.drm) {
+        if (server.drm.kid && server.drm.key) {
+            // ClearKey support
+            config.drm.clearKeys = { [server.drm.kid]: server.drm.key };
+        } else if (server.drm.type === 'widevine' && server.licenseUrl) {
+            config.drm.servers = { 'com.widevine.alpha': server.licenseUrl };
+        }
+    }
+    shakaPlayer.configure(config);
+
+    shakaPlayer.load(server.url).then(() => {
+        videoPlayer.play();
         hideSpinner();
-    });
-    
-    dashPlayer.on('error', (e) => {
-        handleStreamError('DASH Error: ' + (e.error ? e.error.message : 'Unknown error'));
+    }).catch((e) => {
+        handleStreamError('DASH Load Error: ' + (e.message || 'Failed to load'));
     });
 }
 
@@ -204,7 +225,11 @@ function hideSpinner() { document.getElementById('player-spinner').style.display
 
 function destroyPlayers() {
     if (hls) { hls.destroy(); hls = null; }
-    if (dashPlayer) { dashPlayer.reset(); dashPlayer = null; }
+    if (shakaPlayer) { 
+        shakaPlayer.unload(); 
+        shakaPlayer.destroy(); 
+        shakaPlayer = null; 
+    }
     if (ytPlayer) { try { ytPlayer.destroy(); } catch(e){} ytPlayer = null; }
     videoPlayer.src = '';
 }
