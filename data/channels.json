@@ -16,8 +16,8 @@
     "group": "Kids",
     "country": "India",
     "language": "Hindi",
-    "type": "m3u8",
-    "tr": 1
+    "type": "m3u8"
+    
   },
   {
     "id": "motupatlu",
@@ -26,98 +26,16 @@
     "group": "Kids",
     "country": "India",
     "language": "Hindi",
-    "type": "m3u8",
-    "tr": 1
-  },
+    "type": "m3u8"
+    },
   {
-    "id": "bbcone",
-    "name": "BBC One",
-    "logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/BBC_One_logo_2021.svg/1200px-BBC_One_logo_2021.svg.png",
+    "id": "starjalsha",
+    "name": "Star Jalsha",
+    "logo": "https://i.postimg.cc/WpQ9PsZ3/star-jalsha.jpg",
     "group": "Entertainment",
-    "country": "UK",
-    "language": "English",
-    "type": "m3u8"
-  },
-  {
-    "id": "redbulltv",
-    "name": "Red Bull TV",
-    "logo": "https://images.ctfassets.net/6s5pwcgyj5sc/3vL4uI0qEwI0G82k4aeEsS/5e8806f5f06b33c22c7c2a51fb2d75ef/RedBullTV_Logo_Colour_RGB.png",
-    "group": "Sports",
-    "country": "International",
-    "language": "English",
+    "country": "India",
+    "language": "Hindi",
     "type": "m3u8",
     "tr": 1
-  },
-  {
-    "id": "dwnews",
-    "name": "DW News",
-    "logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Deutsche_Welle_symbol_2012.svg/1200px-Deutsche_Welle_symbol_2012.svg.png",
-    "group": "News",
-    "country": "Germany",
-    "language": "English",
-    "type": "m3u8"
-  },
-  {
-    "id": "bbbdash",
-    "name": "Big Buck Bunny DASH",
-    "logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Big_buck_bunny_poster_big.jpg/1200px-Big_buck_bunny_poster_big.jpg",
-    "group": "Movies",
-    "country": "International",
-    "language": "English",
-    "type": "mpd"
-  },
-  {
-    "id": "axinomdrm",
-    "name": "Axinom DRM Test",
-    "logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Axinom_Logo.svg/1200px-Axinom_Logo.svg.png",
-    "group": "Movies",
-    "country": "International",
-    "language": "English",
-    "type": "mpd"
-  },
-  {
-    "id": "clearkeydash",
-    "name": "ClearKey DASH",
-    "logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/DASH_logo.svg/1200px-DASH_logo.svg.png",
-    "group": "Movies",
-    "country": "International",
-    "language": "English",
-    "type": "mpd"
-  },
-  {
-    "id": "lofiyt",
-    "name": "Lofi Radio (YT)",
-    "logo": "https://i.ytimg.com/vi/jfKfPfyJRdk/hqdefault.jpg",
-    "group": "Music",
-    "country": "International",
-    "language": "English",
-    "type": "youtube"
-  },
-  {
-    "id": "nasatv",
-    "name": "NASA TV",
-    "logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/NASA_TV.svg/1200px-NASA_TV.svg.png",
-    "group": "Science",
-    "country": "USA",
-    "language": "English",
-    "type": "m3u8"
-  },
-  {
-    "id": "aljazeera",
-    "name": "Al Jazeera English",
-    "logo": "https://upload.wikimedia.org/wikipedia/en/thumb/f/f6/Al_Jazeera_English.svg/1200px-Al_Jazeera_English.svg.png",
-    "group": "News",
-    "country": "Qatar",
-    "language": "English",
-    "type": "m3u8"
-  },
-  {
-    "id": "cnnnews",
-    "name": "CNN International",
-    "logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/CNN_International.svg/1200px-CNN_International.svg.png",
-    "group": "News",
-    "country": "USA",
-    "language": "English",
-    "type": "m3u8"
   }
 ]
