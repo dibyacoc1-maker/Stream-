@@ -38,5 +38,35 @@
         "status": "active"
       }
     ]
+  },
+  "starjalsha":{
+    "id": "starjalsha",
+    "servers": [
+      {
+        "name":"server 1",
+        "priority": 1,
+        "type" : "m3u8",
+        "url":"https://autumn-shape-b04a.soft-disk-1347.workers.dev/?url=http://stvlive.net:8080/starjalsha/index.m3u8",
+        "status": "active"
+      
+      },
+      {
+        "name":"server 2",
+        "priority": 2,
+        "type" : "m3u8",
+        "url":"https://autumn-shape-b04a.soft-disk-1347.workers.dev/?url=https://genz2.zibobdixserver.top/302/index.m3u8",
+        "status": "active"
+      
+      },
+      {
+        "name": "server 3",
+        "priority": 3,
+        "type": "m3u8",
+        "url": "https://yupptvcatchupire.yuppcdn.net/preview/starjalsha/1800.m3u8",
+         "status": "active"
+  
+      }
+      
+    ]
   }
 }
